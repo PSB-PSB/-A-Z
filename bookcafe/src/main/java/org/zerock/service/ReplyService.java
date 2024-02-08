@@ -17,3 +17,4 @@ public interface ReplyService {
 	
 	public List<ReplyVO> getList(Criteria cri, Long bno);
 }
+ 
