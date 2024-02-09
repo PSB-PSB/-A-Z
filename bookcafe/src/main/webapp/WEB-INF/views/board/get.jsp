@@ -50,6 +50,56 @@
 								<button type="button" class="btn btn-default modBtn"><a href='/board/modify?bno=<c:out value="${board.bno}"/>'>Modify</a></button>
 							 </div>
                             
+                            <script type="text/javascript" src="/resources/js/reply.js"></script>
+                            
+                            <script type="text/javascript">
+                            	
+                            console.log("==========");
+                            console.log("JS 테스트");
+                            
+                            var bnoValue = '<c:out value = "${board.bno}"/>';
+                            
+                            /* replyService.add(
+                            	{reply:"JS 테스트", replyer:"테스터", bno:bnoValue}
+                            	,
+                            	function(result){
+                            		alert("RESULT : " + result);
+                            	} 
+                            	
+                            ); */
+                            replyService.getList({bno:bnoValue, page:1}, function(list){
+                            		for(var i = 0, len = list.length||0; i < len; i++){
+                            			console.log(list[i]);
+                            		}
+                            	});
+                            
+                            // 댓글 삭제
+                            /* replyService.remove(17, function(count){
+                            	
+                            	console.log(count);
+                            	
+                            	if(count === "success"){
+                            		alert("삭제완료");
+                            	}
+                            }, function(err){
+                            	alert("에러...");
+                            }); */
+                            
+                            // 댓글 수정
+                            replyService.update({
+                            	rno : 16,
+                            	bno : bnoValue,
+                            	reply : "댓글 수정 테스트...."
+                            }, function(result){
+                            	alert("수정 완료...")
+                            });
+                            
+                            // 댓글 조회
+                            replyService.get(16, function(data){
+                            	console.log(data);
+                            });
+                            </script>
+                            
                             <script>
                             	
                             var actionFrom = $("#actionFrom");
