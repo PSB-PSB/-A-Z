@@ -33,10 +33,9 @@
  			
  			$.getJSON("/replies/pages/" + bno + "/" + page + ".json",
  			function(data){
- 			console.log(data);
- 			console.log("replyService getList...");
+ 				console.log("replyService getList...");
  				if(callback){
- 				callback(data);
+ 				callback(data.replyCnt, data.list);
  				}
  			}).fail(function(xhr, status, err){
  			if(error){
