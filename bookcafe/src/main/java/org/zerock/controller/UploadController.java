@@ -10,11 +10,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.reactive.HttpHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -98,13 +101,14 @@ public class UploadController {
 		log.info("update ajax post...");
 		
 		// 업로드된 파일 정보를 담을 리스트 생성
-		List<AttachFileDTO> list = new ArrayList<AttachFileDTO>();
+		List<AttachFileDTO> list = new ArrayList<>();
 		
 		//파일을 업로드할 기본 폴더 경로
 		String uploadFolder = "C:\\upload";
 		
 		//폴더 만드는 부분 -------
-		File uploadPath = new File(uploadFolder, getForlder());
+		String uploadFolderPath = getForlder();
+		File uploadPath = new File(uploadFolder, uploadFolderPath);
 		log.info("업로드 경로 : " + uploadPath);
 		
 		// 업로드 경로가 존재하지 않을 경우 폴더 생성
@@ -142,13 +146,13 @@ public class UploadController {
 				
 				// AttachFileDTO에 파일 정보 설정
 				attachDTO.setUuid(uuid.toString());
-				attachDTO.setUploadPath(uploadFolder);
+				attachDTO.setUploadPath(uploadFolderPath);
 				
 				// 파일이 이미지 타입인지 체크해서 썸네일을 만듬.
 				if(checkImageType(saveFile)) {
 					
 					// 이미지 파일인 경우에만 이미지 플래그를 true로 설정
-					attachDTO.setImge(true);
+					attachDTO.setImage(true);
 					
 					// 썸네일 생성부분
 					FileOutputStream thumbnail = 
@@ -168,8 +172,38 @@ public class UploadController {
 		} // end for
 		// ResponseEntity를 사용하여 리스트와 HTTP 상태코드 반환
 		return new ResponseEntity<>(list, HttpStatus.OK);
-		
-		
+
 	} // end uploadAjaxAction
+	
+	@GetMapping("/display")
+	@ResponseBody
+	public ResponseEntity<byte[]> getFile(String fileName){
+		
+		// 요청된 파일 이름 로깅
+		log.info("파일 이름 : " + fileName);
+		
+		// 요청된 파일 경로 생성
+		File file = new File("c:\\upload\\" + fileName);
+		
+		
+		// 요청된 파일 이름 로깅
+		log.info("파일 : " + file);
+		
+		// 응답 엔터티 초기화
+		ResponseEntity<byte[]> result = null;
+		
+		try {
+			// 파일의 Content-Type 추출하여 헤더 설정
+			HttpHeaders header = new HttpHeaders();
+			
+			// 파일의 바이트 배열을 복사하여 응답 엔터티 생성
+			header.add("Content-Type", Files.probeContentType(file.toPath()));
+			result = new ResponseEntity<>(FileCopyUtils.copyToByteArray(file),
+					header, HttpStatus.OK);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
 	
 }
