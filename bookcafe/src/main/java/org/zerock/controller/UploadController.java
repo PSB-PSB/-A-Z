@@ -3,13 +3,18 @@ package org.zerock.controller;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.file.Files;
+import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,6 +25,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zerock.domain.AttachFileDTO;
@@ -206,4 +212,64 @@ public class UploadController {
 		return result;
 	}
 	
+	@GetMapping(value ="/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+	@ResponseBody
+	public ResponseEntity<Resource> downloadFile(@RequestHeader("User-Agent") String userAgent, String fileName){
+		log.info("다운로드 파일 : " + fileName);
+		
+		// 다운로드할 파일의 경로를 지정하여 Resource 객체 생성
+		Resource resource = new FileSystemResource("C:\\upload\\" + fileName);
+		
+		log.info("resource" + resource);
+		
+		// 파일이 존재하지 않는 경우 404 응답 반환
+		if(resource.exists() == false) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		
+		// 다운로드할 파일의 이름을 가져옴
+		String resourceName = resource.getFilename();
+		
+		// HTTP 응답 헤더 설정
+		HttpHeaders headers = new HttpHeaders();
+		
+		try {
+			
+			//다운로드될 파일의 이름을 저장하는 변수를 선언하기위해 초기화
+			String downloadName = null;
+			
+			// User-Agent 헤더를 기반으로 브라우저 종류를 파악하여 파일 이름 인코딩 처리
+			if(userAgent.contains("Trident")) {
+				
+				log.info("IE 브라우저");
+				
+				// IE 브라우저인 경우 파일 이름을 UTF-8로 인코딩한 후 공백을 +로 치환하여 설정
+				downloadName = URLEncoder.encode(resourceName, "UTF-8").replaceAll("\\+", " ");
+			}else if(userAgent.contains("Edge")) {
+				
+				log.info("엣지 브라우저");
+				
+				// Edge 브라우저인 경우 파일 이름을 UTF-8로 인코딩하여 설정
+				downloadName = URLEncoder.encode(resourceName, "UTF-8");
+				
+				log.info("엣지 name : " + downloadName);
+			}else {
+				
+				log.info("크롬 브라우저");
+				
+				// 그 외의 브라우저인 경우(나는 일단 크롬만 쓸거니까 로그에는 크롬 브라우저만) 파일 이름을 ISO-8859-1로 인코딩하여 설정
+				downloadName = new String(resourceName.getBytes("UTF-8"),"ISO-8859-1");
+			}
+			
+			headers.add("Content-Disposition", "attachment; fileName=" + downloadName);
+		
+			
+		} catch (UnsupportedEncodingException  e) {
+			// 예외 발생 시 오류 출력
+			e.printStackTrace();
+		}
+		
+		// 다운로드할 파일의 Resource와 설정된 헤더를 이용하여 ResponseEntity 생성하여 반환
+		return new ResponseEntity<Resource>(resource, headers, HttpStatus.OK);
+	}
 }
