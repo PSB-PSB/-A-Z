@@ -230,6 +230,9 @@ public class UploadController {
 		// 다운로드할 파일의 이름을 가져옴
 		String resourceName = resource.getFilename();
 		
+		//UUID 지우기
+		String resourceOriginalName = resourceName.substring(resourceName.indexOf("_") + 1);
+		
 		// HTTP 응답 헤더 설정
 		HttpHeaders headers = new HttpHeaders();
 		
@@ -244,13 +247,13 @@ public class UploadController {
 				log.info("IE 브라우저");
 				
 				// IE 브라우저인 경우 파일 이름을 UTF-8로 인코딩한 후 공백을 +로 치환하여 설정
-				downloadName = URLEncoder.encode(resourceName, "UTF-8").replaceAll("\\+", " ");
+				downloadName = URLEncoder.encode(resourceOriginalName, "UTF-8").replaceAll("\\+", " ");
 			}else if(userAgent.contains("Edge")) {
 				
 				log.info("엣지 브라우저");
 				
 				// Edge 브라우저인 경우 파일 이름을 UTF-8로 인코딩하여 설정
-				downloadName = URLEncoder.encode(resourceName, "UTF-8");
+				downloadName = URLEncoder.encode(resourceOriginalName, "UTF-8");
 				
 				log.info("엣지 name : " + downloadName);
 			}else {
@@ -258,7 +261,7 @@ public class UploadController {
 				log.info("크롬 브라우저");
 				
 				// 그 외의 브라우저인 경우(나는 일단 크롬만 쓸거니까 로그에는 크롬 브라우저만) 파일 이름을 ISO-8859-1로 인코딩하여 설정
-				downloadName = new String(resourceName.getBytes("UTF-8"),"ISO-8859-1");
+				downloadName = new String(resourceOriginalName.getBytes("UTF-8"),"ISO-8859-1");
 			}
 			
 			headers.add("Content-Disposition", "attachment; fileName=" + downloadName);
