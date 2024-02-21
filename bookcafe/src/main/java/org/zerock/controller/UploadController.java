@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.attribute.UserPrincipalNotFoundException;
@@ -274,5 +275,46 @@ public class UploadController {
 		
 		// 다운로드할 파일의 Resource와 설정된 헤더를 이용하여 ResponseEntity 생성하여 반환
 		return new ResponseEntity<Resource>(resource, headers, HttpStatus.OK);
+	}
+	
+	@PostMapping("/deleteFile")
+	@ResponseBody
+	public ResponseEntity<String> deleteFile(String fileName, String type){
+		
+		// 파일 삭제를 위해 받은 파일 이름 로깅
+		log.info("삭제 하는 파일 이름 : " + fileName);
+		
+		// 파일을 객체로 선언함.
+		File file;
+		
+		try {
+			// 파일 경로에서 한글을 디코딩하여 파일 객체 생성함.
+			file = new File("c:\\upload\\" + URLDecoder.decode(fileName, "UTF-8"));
+				
+			// 파일 삭제
+			file.delete();
+			
+			// if의 조건 파일 타입이 이미지인 경우
+			if(type.equals("image")) {
+				
+				// 원본 이미지 파일의 이름을 가져오기 위해 "s_"를 제거하여 대용량 파일 이름 생성함
+				String largeFileName = file.getAbsolutePath().replace("s_", "");
+				
+				// 대용량 이미지 파일 로깅
+				log.info("largeFileName" + largeFileName);
+				
+				// 대용량 이미지 파일 객체 생성함
+				file = new File(largeFileName);
+				
+				// 대용량 이미지 파일 삭제
+				file.delete();
+			}
+		} catch (UnsupportedEncodingException e) {
+			// 인코딩 오류가 발생한 경우 로깅 및 NOT_FOUND 응답 반환
+			e.printStackTrace();
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		// 파일 삭제 완료 응답 반환
+		return new ResponseEntity<String>("deleted", HttpStatus.OK);
 	}
 }
