@@ -18,5 +18,5 @@ public class BoardVO {
 	//댓글 개수의 대한 변수.
 	private int replyCnt;
 	
-	private List<BoardAttachVO> attacList;
+	private List<BoardAttachVO> attachList;
 } 

@@ -20,7 +20,7 @@
                </div>
                <!-- /.panel-heading -->
                 <div class="panel-body">
-                   <form action="/board/register" method="post">
+                   <form action="/board/register" method="post" id='formObj'>
                    	<div class="form-group">
                          <label>Title</label>
                          <input class="form-control" name="title">
@@ -97,9 +97,9 @@
    <script>
    	$(document).ready(function(e){
    		
-   		var formObj = $("form[role='form']");
+   		var formObj = $("#formObj");
 
-   		$("button[type='submit']").on("click", function (e) {
+   		$("button[type='submit']").on("click", function(e) {
    		    e.preventDefault();
 
    		    console.log("전송 클릭");
@@ -110,11 +110,10 @@
    		        var jobj = $(obj);
 
    		        console.dir(jobj);
-
-   		        str += "<input type='hidden' name='attachList[" + i + "].fileName' value='" + jobj.data("filename") + "'>";
-   		        str += "<input type='hidden' name='attachList[" + i + "].uuid' value='" + jobj.data("uuid") + "'>";
-   		        str += "<input type='hidden' name='attachList[" + i + "].uploadPath' value='" + jobj.data("path") + "'>";
-   		        str += "<input type='hidden' name='attachList[" + i + "].fileType' value='" + jobj.data("type") + "'>";
+   		        str += "<input type='hidden' name='attachList[" + i + "].fileName' value='"+jobj.data("filename") + "'>";
+   		        str += "<input type='hidden' name='attachList[" + i + "].uuid' value='"+jobj.data("uuid") + "'>";
+   		        str += "<input type='hidden' name='attachList[" + i + "].uploadPath' value='"+jobj.data("path") + "'>";
+   		        str += "<input type='hidden' name='attachList[" + i + "].fileType' value='"+jobj.data("type") + "'>";
    		    });
    		    formObj.append(str).submit();
    		});
@@ -160,30 +159,29 @@
 	   			
 	   			$(uploadResultArr).each(function(i, obj){
 	   				if(obj.image){
-	   					
-	   					var fileCallPath = encodeURIComponent(obj.uploadPath + "/s_"+obj.uuid+"_"+obj.fileName);
-	   					str += "<li data-path='" + obj.uploadPath + "' data-uuid='" + obj.uuid + "' data-filename='" + obj.fileName + "' data-type='" + obj.image + "'>";
-	   					str += "<div>";
-	   					str += "<span> " + obj.fileName+"</span>";
-	   					str += "<button type='button' data-file=\'"+fileCallPath+"\' data-type='image' class='btn btn-warning btn-circle'><i class='fa fa-times'></i></button><br>"
-	   					str += "<img src='/display?fileName="+fileCallPath+"'>";
-	   					str += "</div>";
-	   					str += "</li>";
-	   					
-	   				}else{
-	   					var fileCallPath = encodeURIComponent(obj.uploadPath + "/s_"+obj.uuid+"_"+obj.fileName);
-	   					
-	   					var fileLink = fileCallPath.replace(new RegExp(/\\/g),"/");
-	   					
-	   					str += "<li data-path='"+obj.uploadPath+"'";
-	   					str += "data-uuid='"+obj.uuid+"' data-filename='"+obj.fileName+"'data-type='"+obj.image+"'"
-	   					str += " ></div>";
-	   					str += "<span> " + obj.fileName+"</span>";
-	   					str += "<button type='button' data-file=\'"+fileCallPath+"\' data-type='file' class='btn btn-warning btn-circle'><i class='fa fa-times'></i></button><br>"
-	   					str += "<img src='/resources/img/attach.png'></a>";
-	   					str += "</div>";
-	   					str += "</li>";
-	   				}
+	   		          var fileCallPath =  encodeURIComponent( obj.uploadPath+ "/s_"+obj.uuid +"_"+obj.fileName);
+	   		       	str += "<li data-path='"+obj.uploadPath+"'";
+		   		    str +=" data-uuid='"+obj.uuid+"'data-filename='"+obj.fileName+"' data-type='"+obj.image+"'"
+		   		    str +" ><div>";
+		   		    str += "<span> "+ obj.fileName+"</span>";
+		   		    str += "<button type='button' data-file=\'"+fileCallPath+"\' "
+		   		    str += "data-type='image' class='btn btn-warning btn-circle'><i class='fa fa-times'></i></button><br>";
+		   		    str += "<a><img src='/display?fileName="+fileCallPath+"'></a>";
+		   		    str += "</div>";
+		   		    str +"</li>";
+	   		        }else{
+	   		          var fileCallPath =  encodeURIComponent( obj.uploadPath+"/"+ obj.uuid +"_"+obj.fileName);            
+	   		          var fileLink = fileCallPath.replace(new RegExp(/\\/g),"/");
+	   		              
+			   		  str += "<li data-path='"+obj.uploadPath+"'";
+			   		  str +=" data-uuid='"+obj.uuid+"'data-filename='"+obj.fileName+"' data-type='"+obj.image+"'"
+			   		  str +" ><div>";
+	   		          str += "<span> "+ obj.fileName+"</span>";
+	   		          str += "<button type='button' data-file=\'"+fileCallPath+"\' data-type='file' class='btn btn-warning btn-circle'><i class='fa fa-times'></i></button><br>";
+	   		          str += "<a><img src='/resources/img/attach.png'></a>";
+	   		          str += "</div>";
+	   		          str +"</li>";
+	   		        } 
 	   			});
 	   			uploadUL.append(str);
 	   		}
