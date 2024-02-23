@@ -47,25 +47,25 @@ public class BoardController {
 	}
 	
 	@PostMapping("/register")
-	public String register(BoardVO board, RedirectAttributes rttr) {
-		
-		log.info("확인 테스트 ======");
-		
-		log.info("register : " + board);
-		
-		if(board.getAttacList() != null) {
-			board.getAttacList().forEach(attach -> log.info(attach));
-		}
-		log.info("확인 테스트 ======");
-//		log.info("board : " + board);
-//		
-//		Long bno = service.register(board);
-//		
-//		log.info("BNO : " + bno);
-//		rttr.addFlashAttribute("result", bno);
-		
-		return "redirect:/board/list";
-	}
+    public String register(BoardVO board, RedirectAttributes rttr) {
+    	
+      log.info("=====================================");	
+    	
+      log.info("register: " + board);
+      
+      if (board.getAttachList() != null) {
+    	  
+    	  board.getAttachList().forEach(attach -> log.info(attach));
+      }
+      
+      log.info("=====================================");
+      
+      service.register(board);
+       rttr.addFlashAttribute("result", board.getBno());
+
+      return "redirect:/board/list";
+    }
+	
 	
 	@GetMapping({"/get", "/modify"})
 	public void get(@RequestParam("bno")long bno, @ModelAttribute("cri") Criteria cri, Model model) {

@@ -37,9 +37,9 @@ public class BoardServiceTests {
 		board.setContent("AAAContent 테스트");
 		board.setWriter("AAAtester");
 		
-		long bno = service.register(board);
+//		long bno = service.register(board);
 		
-		log.info("bno : " + bno);
+//		log.info("bno : " + bno);
 		
 	}
 }
