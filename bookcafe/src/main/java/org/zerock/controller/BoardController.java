@@ -49,12 +49,20 @@ public class BoardController {
 	@PostMapping("/register")
 	public String register(BoardVO board, RedirectAttributes rttr) {
 		
-		log.info("board : " + board);
+		log.info("확인 테스트 ======");
 		
-		Long bno = service.register(board);
+		log.info("register : " + board);
 		
-		log.info("BNO : " + bno);
-		rttr.addFlashAttribute("result", bno);
+		if(board.getAttacList() != null) {
+			board.getAttacList().forEach(attach -> log.info(attach));
+		}
+		log.info("확인 테스트 ======");
+//		log.info("board : " + board);
+//		
+//		Long bno = service.register(board);
+//		
+//		log.info("BNO : " + bno);
+//		rttr.addFlashAttribute("result", bno);
 		
 		return "redirect:/board/list";
 	}
